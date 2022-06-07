@@ -1,0 +1,231 @@
+---
+title: "Видео+код: #1 С чего начать изучать ThreeJS? Canvas-sketch, установка через npm"
+short_to_menu: "#1 Стартовая сцена|canvas-sketch"
+date: 2022-01-27 12:15:50
+description: Из данного урока Вы сможете узнать, как начать разрабатывать, используя библиотеку Three JS
+published: true
+category: article
+artPre: "/_img/2022/artPre/1-canvas-sketch"
+---
+
+import { Link } from "gatsby";
+
+# Видео: Что необходимо сделать, чтобы стартануть в ThreeJS?
+
+`youtube:https://www.youtube.com/watch?v=tJhvf-maVsM`
+
+## Друзья, начиная с урока <Link to="/2-6-meshline">#2-6 Планета (6 урок)</Link>, я использую эту стартовую сцену: <a href="https://github.com/inverser-pro/threejs-webgl-planet-for-production" rel="noreferrer noopener" target="_blank">GitHUB</a>
+
+Если Вы не понимаете о чём идёт речь, то посмотрите урок, я всё поясняю.
+
+<a rel="nofollow noreferrer noopener" target="_blank" href="//www.youtube.com/watch?v=UNvoDucprRE&list=PL0XYm8bdyeFDGJmFeHDiEXsmLfq3vWBaj">Список воспроизведения со всеми видео по ThreeJS)</a>
+<br/><br/>
+<a rel="nofollow noreferrer noopener" href="//threejs.org/docs/" target="_blank">Официальная справка по ThreeJS</a>
+
+## GitHUB репозиторий с готовой планетой:
+
+<a rel="nofollow noopener" target="_blank" href="https://github.com/inverser-pro/threejs-3d-planet" title="исходный код на GitHUB">исходный код на GitHUB</a>
+
+## Codepen c готовой планетой:
+
+<a rel="nofollow noopener" target="_blank" href="https://codepen.io/inverser/pen/QWaLqPm" title="Codepen life view">Codepen просмотр готового результата</a>
+
+## GitHUB с вариантами планеты (Таков путь!):
+
+<a rel="nofollow noopener" target="_blank" href="https://github.com/inverser-pro/threejs-3d-planet-variants" title="GitHUB с вариантами планеты">GitHUB</a>
+
+
+## Файлы из урока (стартовая сцена)
+
+<a href="/fls/2022/01-intro.zip" title="Скачать файл">01-intro.zip</a>
+
+Для запуска будет достаточно установить NodeJS + выполнить команду:
+
+`npm i`
+
+А также выполнить всё, что ниже (установить canvas-sketch + three)...
+
+## Статья:
+
+Друзья, чтобы начать разрабатывать приложение с использованием JavaScript библиотеки ThreeJS, вам необходимо выполнить следующие действия...
+
+## Установка NodeJS.
+
+Просто возьмите и поставить себе NodeJS. Как это сделать, если вы не знаете, посмотрите на YouTube или перейдите на официальный сайт и скачайте её, затем установите, как обычную программу, если вы используете ~~Windows~~.
+
+Официальный сайт: [nodejs.org](https://nodejs.org "nodejs.org")
+
+Если Вы — тот самый счастливчик и используете Linux, то сами знаете, что делать =)
+
+Для мако-ов — затрудняюсь советовать...
+
+Проверка версии NodeJS. Введите в консоли (терминал):
+`node -v && npm -v`
+Если после этого, у Вас появились какие-то версии, то значит — всё хорошо.
+
+## Установка canvas-sketch
+Можно перейти на официальный адрес пакета:
+[canvas sketch на NPM](https://www.npmjs.com/package/canvas-sketch "canvas sketch на NPM")
+
+`https://www.npmjs.com/package/canvas-sketch`
+
+и следовать инструкциям...
+
+`npm install canvas-sketch-cli -g`
+*если Вы на Linux'е, то данную операцию необходимо выполнить из-под суперпользователя.
+
+Далее. Создайте папку и перейдите в неё:
+
+`mkdir my-sketches && cd my-sketches`
+
+Далее, чтобы начать писать, используя авто-генерацию, просто введите:
+
+`canvas-sketch sketch.js --new --open`
+
+[Стартовая сцена](https://github.com/mattdesl/canvas-sketch/blob/master/examples/animated-three-basic-cube.js "Стартовая сцена") выглядит так для canvas-sketch:
+
+```javascript
+//A basic ThreeJS cube scene.
+//@author Matt DesLauriers (@mattdesl)
+
+const canvasSketch = require('canvas-sketch');
+
+// Ensure ThreeJS is in global scope for the 'examples/'
+global.THREE = require('three');
+
+// Include any additional ThreeJS examples below
+require('three/examples/js/controls/OrbitControls');
+
+const settings = {
+  // Make the loop animated
+  animate: true,
+  // Get a WebGL canvas rather than 2D
+  context: 'webgl',
+  // Turn on MSAA
+  attributes: { antialias: true }
+};
+
+const sketch = ({ context }) => {
+  // Create a renderer
+  const renderer = new THREE.WebGLRenderer({
+    context
+  });
+
+  // WebGL background color
+  renderer.setClearColor('#000', 1);
+
+  // Setup a camera
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 100);
+  camera.position.set(2, 2, -4);
+  camera.lookAt(new THREE.Vector3());
+
+  // Setup camera controller
+  const controls = new THREE.OrbitControls(camera, context.canvas);
+
+  // Setup your scene
+  const scene = new THREE.Scene();
+
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshPhysicalMaterial({
+      color: 'white',
+      roughness: 0.75,
+      flatShading: true
+    })
+  );
+  scene.add(mesh);
+
+  // Specify an ambient/unlit colour
+  scene.add(new THREE.AmbientLight('#59314f'));
+
+  // Add some light
+  const light = new THREE.PointLight('#45caf7', 1, 15.5);
+  light.position.set(2, 2, -4).multiplyScalar(1.5);
+  scene.add(light);
+
+  // draw each frame
+  return {
+    // Handle resize events here
+    resize ({ pixelRatio, viewportWidth, viewportHeight }) {
+      renderer.setPixelRatio(pixelRatio);
+      renderer.setSize(viewportWidth, viewportHeight);
+      camera.aspect = viewportWidth / viewportHeight;
+      camera.updateProjectionMatrix();
+    },
+    // And render events here
+    render ({ time, deltaTime }) {
+      mesh.rotation.y = time * (10 * Math.PI / 180);
+      controls.update();
+      renderer.render(scene, camera);
+    },
+    // Dispose of WebGL context (optional)
+    unload () {
+      renderer.dispose();
+    }
+  };
+};
+
+canvasSketch(sketch, settings);
+```
+
+### Друзья, кроме canvas-sketch...
+
+... существуют и другие стартовые сцены, одну из которых (и она самая популярная в ваших интернетах) мы и будем использовать...
+
+<a rel="nofollow noopener" target="_blank" href="https://github.com/designcourse/threejs-webpack-starter" title="Стартовая примитивная сцена на Three.JS">Стартовая примитивная сцена на Three.JS</a>
+
+[подробнее об этом в уроке #2/6](/2-6-meshline)
+
+### Возможно, вам следуем изначально понять, насколько хорошо Ваше железо для создания сцен на Three.JS
+
+К примеру, на моём стареньком компьютере тормозит даже [самая примитивная сцена на Three.JS](/_code/start-test "самая примитивная сцена")...
+
+*Для запуска проверки нагрузки на видео карту nvidia в Linux, используйте* `watch -n 0.5 nvidia-smi`
+
+<a rel="nofollow noopener" target="_blank" href="https://unix.stackexchange.com/questions/38560/gpu-usage-monitoring-cuda" title="подробнее на стаке">подробнее на стаке</a>
+
+также можно использовать
+
+<a rel="nofollow noopener" target="_blank" href="https://github.com/wookayin/gpustat" title="gpustat">gpustat для Linux (Git)</a>
+<br/><br/>
+<a rel="nofollow noopener" target="_blank" href="https://aur.archlinux.org/packages/python-gpustat" title="gpustat">gpustat для Linux (archlinux)</a>
+
+и ввести (после установки) `gpustat --watch`
+
+<video playsinline src="/_video/2022/01-intro-tupit.mp4" controls loading="lazy" preload="metadata"></video>
+<video playsinline src="/_video/2022/01-intro-tupit-2.mp4" controls loading="lazy" preload="metadata"></video>
+
+Расшифровка временных меток видео (вверху которое):
+
+```
+00:00 Как стартануть, чтобы удобно и быстро писать код ThreeJS?
+00:33 Сайтик, где я буду выкладывать всю инфу
+01:14 Установка и проверка NodeJS
+02:04 Установка canvas-sketch
+04:17 Создание первого пустого проекта
+05:32 Установка ThreeJS (добавление библиотеки)
+05:47 Первая сцена на ThreeJS — стартовая
+07:40 Подвожу итог, что делать дальше?
+09:10 Пройдёмся по коду и посмотрим, что там?
+09:58 const sketch
+10:18 Понятие камеры в Three JS
+10:40 threejs.org
+12:18 Камера, смотри так! camera.lookAt(new THREE.Vector3())
+13:23 3D — это всегда описание X,Y,Z позиции для одной точки
+14:09 THREE.OrbitControls — управление 3D-объектами на сцене
+14:41 Mesh в ThreeJS
+15:52 ThreeJS BoxGeometry
+16:09 В мире WebGL (~ThreeJS) нет понятия размера (как бы)
+18:31 THREE.MeshPhysicalMaterial — материал для Mesh
+20:17 Три составляющие для того, чтобы увидеть что-то в браузере: камера, сцена, объект
+21:54 Чистый WebGL — Oo @@@!
+22:52 Добавление источника света на сцену ThreeJS (AmbientLight + PointLight)
+26:06 Понятие увеличения объекта (ThreeJS multiplyScalar)
+26:43 Возвращение значения функции — отрисовка кадров
+27:09 Анимация в ThreeJS — её же возможностями
+27:20 ThreeJS render + setPixelRatio
+28:19 render.setSize в ThreeJS
+28:22 camera.aspect в ThreeJS
+29:31 Функция render в ThreeJS
+33:17 А напоследок я скажу...
+```

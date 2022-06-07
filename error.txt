@@ -1,0 +1,192 @@
+sudo yarn install
+[sudo] пароль для user: 
+yarn install v1.22.19
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+warning "gatsby > eslint-config-react-app@6.0.0" has unmet peer dependency "babel-eslint@^10.0.0".
+warning "gatsby > @typescript-eslint/eslint-plugin > tsutils@3.21.0" has unmet peer dependency "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta".
+warning "gatsby > eslint-plugin-graphql > graphql-config > @endemolshinegroup/cosmiconfig-typescript-loader > ts-node@9.1.1" has unmet peer dependency "typescript@>=2.7".
+warning " > gatsby-plugin-image@2.6.0" has unmet peer dependency "@babel/core@^7.12.3".
+warning "react-live > react-simple-code-editor@0.11.0" has incorrect peer dependency "react@^16.0.0".
+warning "react-live > react-simple-code-editor@0.11.0" has incorrect peer dependency "react-dom@^16.0.0".
+[4/4] Building fresh packages...
+[-/10] ⢀ waiting...
+[-/10] ⢀ waiting...
+[8/10] ⢀ lmdb-store
+[4/10] ⢀ sharp
+error /home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store: Command failed.
+Exit code: 1
+Command: node-gyp-build
+Arguments: 
+Directory: /home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store
+Output:
+gyp info it worked if it ends with ok
+gyp info using node-gyp@9.0.0
+gyp info using node@18.2.0 | linux | x64
+gyp info find Python using Python version 3.10.4 found at "/usr/bin/python3"
+gyp http GET https://nodejs.org/download/release/v18.2.0/node-v18.2.0-headers.tar.gz
+gyp http 200 https://nodejs.org/download/release/v18.2.0/node-v18.2.0-headers.tar.gz
+gyp http GET https://nodejs.org/download/release/v18.2.0/SHASUMS256.txt
+gyp http 200 https://nodejs.org/download/release/v18.2.0/SHASUMS256.txt
+gyp info spawn /usr/bin/python3
+gyp info spawn args [
+gyp info spawn args   '/usr/lib/node_modules/node-gyp/gyp/gyp_main.py',
+gyp info spawn args   'binding.gyp',
+gyp info spawn args   '-f',
+gyp info spawn args   'make',
+gyp info spawn args   '-I',
+gyp info spawn args   '/home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store/build/config.gypi',
+gyp info spawn args   '-I',
+gyp info spawn args   '/usr/lib/node_modules/node-gyp/addon.gypi',
+gyp info spawn args   '-I',
+gyp info spawn args   '/root/.cache/node-gyp/18.2.0/include/node/common.gypi',
+gyp info spawn args   '-Dlibrary=shared_library',
+gyp info spawn args   '-Dvisibility=default',
+gyp info spawn args   '-Dnode_root_dir=/root/.cache/node-gyp/18.2.0',
+gyp info spawn args   '-Dnode_gyp_dir=/usr/lib/node_modules/node-gyp',
+gyp info spawn args   '-Dnode_lib_file=/root/.cache/node-gyp/18.2.0/<(target_arch)/node.lib',
+gyp info spawn args   '-Dmodule_root_dir=/home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store',
+gyp info spawn args   '-Dnode_engine=v8',
+gyp info spawn args   '--depth=.',
+gyp info spawn args   '--no-parallel',
+gyp info spawn args   '--generator-output',
+gyp info spawn args   'build',
+gyp info spawn args   '-Goutput_dir=.'
+gyp info spawn args ]
+gyp info spawn make
+gyp info spawn args [ 'BUILDTYPE=Release', '-C', 'build' ]
+make: вход в каталог «/home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store/build»
+  CXX(target) Release/obj.target/lmdb/src/node-lmdb.o
+In file included from ../src/node-lmdb.h:32,
+                 from ../src/node-lmdb.cpp:1:
+../../nan/nan.h: В функции «void Nan::SetAccessor(v8::Local<v8::ObjectTemplate>, v8::Local<v8::String>, GetterCallback, SetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, imp::Sig)»:
+../../nan/nan.h:2544:19: предупреждение: «void v8::ObjectTemplate::SetAccessor(v8::Local<v8::Name>, v8::AccessorNameGetterCallback, v8::AccessorNameSetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, v8::Local<v8::AccessorSignature>, v8::SideEffectType, v8::SideEffectType)» устарело: Do signature check in accessor [-Wdeprecated-declarations]
+ 2544 |   tpl->SetAccessor(
+      |   ~~~~~~~~~~~~~~~~^
+ 2545 |       name
+      |       ~~~~         
+ 2546 |     , getter_
+      |     ~~~~~~~~~      
+ 2547 |     , setter_
+      |     ~~~~~~~~~      
+ 2548 |     , obj
+      |     ~~~~~          
+ 2549 |     , settings
+      |     ~~~~~~~~~~     
+ 2550 |     , attribute
+      |     ~~~~~~~~~~~    
+ 2551 |     , signature);
+      |     ~~~~~~~~~~~~   
+In file included from /root/.cache/node-gyp/18.2.0/include/node/v8-function.h:15,
+                 from /root/.cache/node-gyp/18.2.0/include/node/v8.h:33,
+                 from ../src/node-lmdb.h:29:
+/root/.cache/node-gyp/18.2.0/include/node/v8-template.h:838:8: замечание: объявлено здесь
+  838 |   void SetAccessor(
+      |        ^~~~~~~~~~~
+  CC(target) Release/obj.target/lmdb/dependencies/lmdb/libraries/liblmdb/midl.o
+  CC(target) Release/obj.target/lmdb/dependencies/lmdb/libraries/liblmdb/chacha8.o
+  CC(target) Release/obj.target/lmdb/dependencies/lz4/lib/lz4.o
+  CXX(target) Release/obj.target/lmdb/src/env.o
+In file included from ../src/node-lmdb.h:32,
+                 from ../src/env.cpp:25:
+../../nan/nan.h: В функции «void Nan::SetAccessor(v8::Local<v8::ObjectTemplate>, v8::Local<v8::String>, GetterCallback, SetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, imp::Sig)»:
+../../nan/nan.h:2544:19: предупреждение: «void v8::ObjectTemplate::SetAccessor(v8::Local<v8::Name>, v8::AccessorNameGetterCallback, v8::AccessorNameSetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, v8::Local<v8::AccessorSignature>, v8::SideEffectType, v8::SideEffectType)» устарело: Do signature check in accessor [-Wdeprecated-declarations]
+ 2544 |   tpl->SetAccessor(
+      |   ~~~~~~~~~~~~~~~~^
+ 2545 |       name
+      |       ~~~~         
+ 2546 |     , getter_
+      |     ~~~~~~~~~      
+ 2547 |     , setter_
+      |     ~~~~~~~~~      
+ 2548 |     , obj
+      |     ~~~~~          
+ 2549 |     , settings
+      |     ~~~~~~~~~~     
+ 2550 |     , attribute
+      |     ~~~~~~~~~~~    
+ 2551 |     , signature);
+      |     ~~~~~~~~~~~~   
+In file included from /root/.cache/node-gyp/18.2.0/include/node/v8-function.h:15,
+                 from /root/.cache/node-gyp/18.2.0/include/node/v8.h:33,
+                 from ../src/node-lmdb.h:29:
+/root/.cache/node-gyp/18.2.0/include/node/v8-template.h:838:8: замечание: объявлено здесь
+  838 |   void SetAccessor(
+      |        ^~~~~~~~~~~
+  CXX(target) Release/obj.target/lmdb/src/compression.o
+In file included from ../src/node-lmdb.h:32,
+                 from ../src/compression.cpp:26:
+../../nan/nan.h: В функции «void Nan::SetAccessor(v8::Local<v8::ObjectTemplate>, v8::Local<v8::String>, GetterCallback, SetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, imp::Sig)»:
+../../nan/nan.h:2544:19: предупреждение: «void v8::ObjectTemplate::SetAccessor(v8::Local<v8::Name>, v8::AccessorNameGetterCallback, v8::AccessorNameSetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, v8::Local<v8::AccessorSignature>, v8::SideEffectType, v8::SideEffectType)» устарело: Do signature check in accessor [-Wdeprecated-declarations]
+ 2544 |   tpl->SetAccessor(
+      |   ~~~~~~~~~~~~~~~~^
+ 2545 |       name
+      |       ~~~~         
+ 2546 |     , getter_
+      |     ~~~~~~~~~      
+ 2547 |     , setter_
+      |     ~~~~~~~~~      
+ 2548 |     , obj
+      |     ~~~~~          
+ 2549 |     , settings
+      |     ~~~~~~~~~~     
+ 2550 |     , attribute
+      |     ~~~~~~~~~~~    
+ 2551 |     , signature);
+      |     ~~~~~~~~~~~~   
+In file included from /root/.cache/node-gyp/18.2.0/include/node/v8-function.h:15,
+                 from /root/.cache/node-gyp/18.2.0/include/node/v8.h:33,
+                 from ../src/node-lmdb.h:29:
+/root/.cache/node-gyp/18.2.0/include/node/v8-template.h:838:8: замечание: объявлено здесь
+  838 |   void SetAccessor(
+      |        ^~~~~~~~~~~
+  CXX(target) Release/obj.target/lmdb/src/ordered-binary.o
+In file included from ../src/node-lmdb.h:32,
+                 from ../src/ordered-binary.cpp:1:
+../../nan/nan.h: В функции «void Nan::SetAccessor(v8::Local<v8::ObjectTemplate>, v8::Local<v8::String>, GetterCallback, SetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, imp::Sig)»:
+../../nan/nan.h:2544:19: предупреждение: «void v8::ObjectTemplate::SetAccessor(v8::Local<v8::Name>, v8::AccessorNameGetterCallback, v8::AccessorNameSetterCallback, v8::Local<v8::Value>, v8::AccessControl, v8::PropertyAttribute, v8::Local<v8::AccessorSignature>, v8::SideEffectType, v8::SideEffectType)» устарело: Do signature check in accessor [-Wdeprecated-declarations]
+ 2544 |   tpl->SetAccessor(
+      |   ~~~~~~~~~~~~~~~~^
+ 2545 |       name
+      |       ~~~~         
+ 2546 |     , getter_
+      |     ~~~~~~~~~      
+ 2547 |     , setter_
+      |     ~~~~~~~~~      
+ 2548 |     , obj
+      |     ~~~~~          
+ 2549 |     , settings
+      |     ~~~~~~~~~~     
+ 2550 |     , attribute
+      |     ~~~~~~~~~~~    
+ 2551 |     , signature);
+      |     ~~~~~~~~~~~~   
+In file included from /root/.cache/node-gyp/18.2.0/include/node/v8-function.h:15,
+                 from /root/.cache/node-gyp/18.2.0/include/node/v8.h:33,
+                 from ../src/node-lmdb.h:29:
+/root/.cache/node-gyp/18.2.0/include/node/v8-template.h:838:8: замечание: объявлено здесь
+  838 |   void SetAccessor(
+      |        ^~~~~~~~~~~
+../src/ordered-binary.cpp: В функции «size_t valueToKey(const v8::Local<v8::Value>&, uint8_t*, size_t, bool, bool)»:
+../src/ordered-binary.cpp:138:91: ошибка: no matching function for call to «v8::Symbol::Description()»
+  138 |         Local<String> string = Local<String>::Cast(Local<Symbol>::Cast(jsKey)->Description());
+      |                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+In file included from /root/.cache/node-gyp/18.2.0/include/node/v8-object.h:11,
+                 from /root/.cache/node-gyp/18.2.0/include/node/v8-array-buffer.h:13,
+                 from /root/.cache/node-gyp/18.2.0/include/node/v8.h:24:
+/root/.cache/node-gyp/18.2.0/include/node/v8-primitive.h:588:16: замечание: candidate: «v8::Local<v8::Value> v8::Symbol::Description(v8::Isolate*) const»
+  588 |   Local<Value> Description(Isolate* isolate) const;
+      |                ^~~~~~~~~~~
+/root/.cache/node-gyp/18.2.0/include/node/v8-primitive.h:588:16: замечание:   кандидат ожидает 1 аргумент, 0 предоставлено
+make: *** [lmdb.target.mk:146: Release/obj.target/lmdb/src/ordered-binary.o] Ошибка 1
+make: выход из каталога «/home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store/build»
+gyp ERR! build error 
+gyp ERR! stack Error: `make` failed with exit code: 2
+gyp ERR! stack     at ChildProcess.onExit (/usr/lib/node_modules/node-gyp/lib/build.js:194:23)
+gyp ERR! stack     at ChildProcess.emit (node:events:527:28)
+gyp ERR! stack     at ChildProcess._handle.onexit (node:internal/child_process:291:12)
+gyp ERR! System Linux 5.16.18-1-MANJARO
+gyp ERR! command "/usr/bin/node" "/usr/lib/node_modules/node-gyp/bin/node-gyp.js" "rebuild"
+gyp ERR! cwd /home/user/_TRUD/_gatsby/_three/node_modules/lmdb-store
+

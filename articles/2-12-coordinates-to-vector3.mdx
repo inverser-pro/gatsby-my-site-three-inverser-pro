@@ -1,0 +1,836 @@
+---
+title: "Видео+код: #2/12 THREEJS координаты земли в Vector3"
+short_to_menu: "#2-12 Планета (12 урок)|Координаты"
+date: 2022-04-29 17:29:51
+description: "Видео+код: #2/12 THREEJS координаты земли (широта/долгота) в Vector3"
+published: true
+category: article
+artPre: "/_img/2022/artPre/12-coordinates-to-vector3"
+---
+
+# Видео: 14 THREEJS координаты земли
+урок 14 по Three JS / урок 12 по планете
+
+`youtube:https://www.youtube.com/watch?v=ZhXuJ9_HDjg`
+
+<a href="https://codepen.io/inverser/pen/RwQbdOm" rel="noreferrer noopener" target="_blank">Codepen</a>
+
+<br/><a href="https://codepen.io/inverser/pen/popMYJy" rel="noreferrer noopener" target="_blank">Codepen копия Пашиного кода</a>
+
+
+## Файлы из урока 12 по 3D планете
+
+[2-12-coordinates-to-vector3.zip](/fls/2022/2-12-coordinates-to-vector3.zip "Скачать файл")
+
+### JS Код из видео (!на **threejs-webpack-starter**!)
+**Выделениями отмечены изменения в коде по сравнению с предыдущим уроком**
+
+```javascript{26-27,45-54,61-62,100-101,160-175,257,259,353-434,443}
+import './style.css'
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+import {BufferGeometryUtils} from 'three/examples/jsm/utils/BufferGeometryUtils'
+import {TWEEN} from 'three/examples/jsm/libs/tween.module.min'
+
+//import * as dat from 'dat.gui'
+
+//const gui = new dat.GUI()
+let o;
+const scene = new THREE.Scene();
+//scene.background = new THREE.Color('blue');
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.01, 50);
+camera.position.set(0, 10, 10);
+const renderer = new THREE.WebGLRenderer({antialias: true,alpha: true});
+renderer.setSize(innerWidth, innerHeight);
+
+renderer.setClearColor('#000', 0);
+
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enablePan = true;
+
+// our code
+const group=new THREE.Group();// empty groupe for add all rotation object
+
+const params = {
+  colors: {
+    base: "#ffffff",
+    gradInner: "#ff0022",
+    gradOuter: "#ff0000"
+  },
+  mapPoints:{
+    sizeOfPoints:.3,// FLOAT ONLY | MIN: 0.1 , MAX: 0.4
+    opacityOfOceanPoints:.1,// FLOAT ONLY ex. .1 | MIN: 0.1 - black, MAX: 0.9
+    countOfPoints:25000,// INT ONLY ex. 1000 - 40000
+  },
+  reset: ()=>controls.reset()
+}
+
+const maxImpactAmount = 1;
+
+const tmpFrom={lat:32.622876, lon:107.523152}//China
+//const tmpFrom={lat:8.499511, lon:77.617839}//INDIA
+const tmpTo={lat:-26.164493,lon:134.742407}//-26.164493, 134.742407
+//const tmpTo={lat:-50.606498,lon:-70.9632}
+/* const new_arr=[
+    {lat:32.622876, lon:107.523152},
+    {lat:32.622876, lon:107.523152},
+    {lat:32.622876, lon:107.523152},
+    {lat:32.622876, lon:107.523152},
+] */
+
+// init uniforms impacts and traces array
+const impacts = new Array();
+const trails = new Array();
+for (let i = 0; i < maxImpactAmount; i++) {
+  impacts.push({
+    impactPosition: cTv(tmpTo),//Sydnay | Paris: lat:48.5112,lon:2.2055
+    prevPosition: cTv(tmpFrom),//NY
+    impactMaxRadius: 5 * THREE.Math.randFloat(.1, .7),
+    impactRatio: 0,
+    trailRatio: {value: 0},
+    trailLength: {value: 0}
+  });
+  makeTrail(i);
+}
+const uniforms = {
+  impacts: {value: impacts},
+  maxSize: {value: 0.04},
+  minSize: {value: 0.03},
+  waveHeight: {value: 0.125},
+  scaling: {value: 2},
+  gradInner: {value: new THREE.Color(params.colors.gradInner)},
+  gradOuter: {value: new THREE.Color(params.colors.gradOuter)}
+}
+
+const tweens = new Array();
+
+for (let i = 0; i < maxImpactAmount; i++) {
+  tweens.push({
+    runTween: ()=> {
+        const path = trails[i];
+        const speed = 2;
+        const len = path.geometry.attributes.lineDistance.array[99];
+        const dur = len / speed;
+    	  const tweenTrail = new TWEEN.Tween({value: 0})
+      	.to({value: 1}, dur * 1000)
+        .onUpdate( val => {
+        	impacts[i].trailRatio.value = val.value;
+        });
+        const tweenImpact = new TWEEN.Tween({ value: 0 })
+        .to({ value: 1 }, THREE.Math.randInt(2500, 5000))
+        .onUpdate(val => {
+          uniforms.impacts.value[i].impactRatio = val.value;
+        })
+        .onComplete(() => {
+          impacts[i].prevPosition=cTv(tmpFrom)
+          impacts[i].impactPosition=cTv(tmpTo)
+          setPath(path, impacts[i].prevPosition, impacts[i].impactPosition, 1);
+          uniforms.impacts.value[i].impactMaxRadius = 5 * THREE.Math.randFloat(.5, .75);
+          tweens[i].runTween();
+        });
+        tweenTrail.chain(tweenImpact);
+        tweenTrail.start();
+    }
+  });
+}
+
+tweens.forEach(t => t.runTween());
+(()=>{
+    const dummyObj = new THREE.Object3D()
+    const p = new THREE.Vector3()
+    const sph = new THREE.Spherical()
+    const geoms = new Array()
+    const tex = new THREE.TextureLoader().load('/map.jpg',()=>{
+      // https://web.archive.org/web/20120107030109/http://cgafaq.info/wiki/Evenly_distributed_points_on_sphere#Spirals
+      const counter = params.mapPoints.countOfPoints
+      const rad = 5
+    
+      let r = 0
+      const dlong = Math.PI * (3 - Math.sqrt(5))
+      const dz = 2 / counter
+      let long = 0
+      let z = 1 - dz / 2
+      for(let i = 0; i < counter; i++){
+          r = Math.sqrt(1 - z * z);
+          p.set( Math.cos(long) * r, z, -Math.sin(long) * r).multiplyScalar(rad);
+          z = z - dz;
+          long = long + dlong;
+          sph.setFromVector3(p);
+          dummyObj.lookAt(p);
+          dummyObj.updateMatrix(); 
+          const g =  new THREE.PlaneBufferGeometry(2, 2);
+          g.applyMatrix4(dummyObj.matrix);
+          g.translate(p.x, p.y, p.z);
+          const centers = [
+            p.x, p.y, p.z, 
+            p.x, p.y, p.z, 
+            p.x, p.y, p.z, 
+            p.x, p.y, p.z
+          ];
+          const uv = new THREE.Vector2(
+            (sph.theta + Math.PI) / (Math.PI * 2),
+            1. - sph.phi / Math.PI
+          );
+          const uvs = [
+            uv.x, uv.y,
+            uv.x, uv.y,
+            uv.x, uv.y,
+            uv.x, uv.y
+          ];
+          g.setAttribute("center", new THREE.Float32BufferAttribute(centers, 3));
+          g.setAttribute("bUv", new THREE.Float32BufferAttribute(uvs, 2));
+          geoms.push(g);
+      }
+      const g = BufferGeometryUtils.mergeBufferGeometries(geoms);
+// JFT
+      /* const tex_ = new THREE.TextureLoader().load(
+        "https://cywarr.github.io/small-shop/map-political1.gif"
+      );
+
+      const mew=new THREE.Mesh(
+        new THREE.IcosahedronBufferGeometry(5,5),
+        new THREE.MeshBasicMaterial({
+          map: tex_,
+          transparent:true,
+          opacity:.25,
+        })
+      )
+      mew.rotation.y=1.57
+      group.add(mew) */
+// \ JFT
+      const m = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(params.colors.base),
+        side: THREE.DoubleSide,
+        transparent:true,
+        onBeforeCompile: shader => {
+          shader.uniforms.impacts = uniforms.impacts;
+          shader.uniforms.maxSize = uniforms.maxSize;
+          shader.uniforms.minSize = uniforms.minSize;
+          shader.uniforms.waveHeight = uniforms.waveHeight;
+          shader.uniforms.scaling = uniforms.scaling;
+          shader.uniforms.gradInner = uniforms.gradInner;
+          shader.uniforms.gradOuter = uniforms.gradOuter;
+          shader.uniforms.tex = {value: tex};
+          shader.vertexShader = `
+              struct impact {
+              vec3 impactPosition;
+              float impactMaxRadius;
+              float impactRatio;
+            };
+              uniform impact impacts[${maxImpactAmount}];
+            uniform sampler2D tex;
+            uniform float maxSize;
+            uniform float minSize;
+            uniform float waveHeight;
+            uniform float scaling;
+            attribute vec3 center;
+            attribute vec2 bUv;
+            varying float vFinalStep;
+            varying float vMap;
+            ${shader.vertexShader}
+          `.replace(
+              `#include <begin_vertex>`,
+            `#include <begin_vertex>
+            float finalStep = 0.0;
+            for (int i = 0; i < ${maxImpactAmount};i++){
+              float dist = distance(center, impacts[i].impactPosition);
+              float curRadius = impacts[i].impactMaxRadius * impacts[i].impactRatio;
+              float sstep = smoothstep(0., curRadius, dist) - smoothstep(curRadius - ( 0.25 * impacts[i].impactRatio ), curRadius, dist);
+              sstep *= 1. - impacts[i].impactRatio;
+              finalStep += sstep;
+            }
+            finalStep = clamp(finalStep, 0., 1.);
+            vFinalStep = finalStep;
+            
+            float map = texture(tex, bUv).g;
+            vMap = map;
+            float pSize = map < 0.5 ? maxSize : minSize;
+            float scale = scaling;
+    
+            transformed = (position - center) * pSize * mix(1., scale * 1.25, finalStep) + center; // scale on wave
+            transformed += normal * finalStep * waveHeight; // lift on wave
+            `
+          );
+          shader.fragmentShader = `
+            uniform vec3 gradInner;
+            uniform vec3 gradOuter;
+            varying float vFinalStep;
+            varying float vMap;
+            
+            ${shader.fragmentShader}
+            `.replace(
+              `vec4 diffuseColor = vec4( diffuse, opacity );`,
+            `// shaping the point, pretty much from The Book of Shaders
+            vec2 hUv = (vUv - .1);
+            int N = 8;
+            float a = atan(hUv.x,hUv.y);
+            float r = PI2/float(N);
+            float d = cos(floor(.5+a/r)*r-a)*length(hUv);
+            float f = cos(PI / float(N)) * .5;
+            //if (d > f) discard;
+            if (length(vUv - ${params.mapPoints.sizeOfPoints}) > ${params.mapPoints.sizeOfPoints}) discard;
+            vec3 grad = mix(gradInner, gradOuter, clamp( d / f, 0., 1.)); // gradient
+            vec3 diffuseMap = diffuse * ((vMap > .5) ? ${params.mapPoints.opacityOfOceanPoints} : 1.);
+            vec3 col = mix(diffuseMap, grad, vFinalStep); // color on wave
+            float opct=(vMap > .5)?${params.mapPoints.opacityOfOceanPoints}:1.;
+            vec4 diffuseColor = vec4( col , opct );
+            `);
+        }
+      });
+      m.defines = {"USE_UV":""};
+      o = new THREE.Mesh(g, m);
+      //o.rotation.y=1.59
+      trails.forEach(t => group.add(t));
+      group.add(o);
+    })
+  })()
+
+function makeTrail(idx){
+  const pts = new Array(100 * 3).fill(0);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+  const m = new THREE.LineDashedMaterial({
+  	color: params.colors.gradOuter,
+    transparent: true,
+  	onBeforeCompile: shader => {
+    	shader.uniforms.actionRatio = impacts[idx].trailRatio;
+      shader.uniforms.lineLength = impacts[idx].trailLength;
+      shader.fragmentShader = `
+      	uniform float actionRatio;
+        uniform float lineLength;
+        ${shader.fragmentShader}
+      `.replace(
+      	`if ( mod( vLineDistance, totalSize ) > dashSize ) {
+		discard;
+	}`,
+        `
+        	float halfDash = dashSize * 0.5;
+          float currPos = (lineLength + dashSize) * actionRatio;
+        	float d = (vLineDistance + halfDash) - currPos;
+        	if (abs(d) > halfDash ) discard;
+          
+          float grad = ((vLineDistance + halfDash) - (currPos - halfDash)) / halfDash;
+        `
+      )
+      .replace(
+      	`vec4 diffuseColor = vec4( diffuse, opacity );`,
+        `
+        vec4 diffuseColor = vec4( diffuse, grad );
+        `
+      );
+      //console.log(shader.fragmentShader);
+    }
+  });
+
+  const l = new THREE.Line(g, m);
+  l.userData.idx = idx;
+
+  setPath(l, impacts[idx].prevPosition, impacts[idx].impactPosition, 1);
+  trails.push(l);
+}
+
+// based on https://jsfiddle.net/prisoner849/fu59aved/
+function setPath(l, startPoint, endPoint, peakHeight, cycles) {
+    const pos = l.geometry.attributes.position;
+    const division = pos.count - 1;
+    const cycle = cycles || 1;
+    const peak = peakHeight || 1;
+    const radius = startPoint.length();
+    const angle = startPoint.angleTo(endPoint);
+    const arcLength = radius * angle;
+    const diameterMinor = arcLength / Math.PI;
+    const radiusMinor = (diameterMinor * 0.5) / cycle;
+    const peakRatio = peak / diameterMinor;
+    const radiusMajor = startPoint.length() + radiusMinor;
+    const basisMajor = new THREE.Vector3().copy(startPoint).setLength(radiusMajor);
+    const basisMinor = new THREE.Vector3().copy(startPoint).negate().setLength(radiusMinor);
+
+
+    // triangle (start, end, center)
+    const tri = new THREE.Triangle(startPoint, endPoint, new THREE.Vector3());
+    const nrm = new THREE.Vector3(); // normal
+    tri.getNormal(nrm);
+
+    // rotate startPoint around normal
+    //let angleStep = angle / division;
+    const v3Major = new THREE.Vector3();
+    const v3Minor = new THREE.Vector3();
+    const v3Inter = new THREE.Vector3();
+    const vFinal = new THREE.Vector3();
+    for (let i = 0; i <= division; i++) {
+        const divisionRatio = i / division;
+        const angleValue = angle * divisionRatio;
+        v3Major.copy(basisMajor).applyAxisAngle(nrm, angleValue);
+        v3Minor.copy(basisMinor).applyAxisAngle(nrm, angleValue + Math.PI * 2 * divisionRatio * cycle);
+        v3Inter.addVectors(v3Major, v3Minor);
+        const newLength = ((v3Inter.length() - radius) * peakRatio) + radius;
+        vFinal.copy(v3Inter).setLength(newLength);
+        pos.setXYZ(i, vFinal.x, vFinal.y, vFinal.z);
+    }
+    pos.needsUpdate = true;
+    l.computeLineDistances();
+    l.geometry.attributes.lineDistance.needsUpdate = true;
+    impacts[l.userData.idx].trailLength.value = l.geometry.attributes.lineDistance.array[99];
+    l.material.dashSize = 3;
+    //l.material.gapSize = l.material.userData.lineLength.value;
+    //return new THREE.BufferGeometry().setFromPoints(points);
+}
+  //LESS 2-12
+ function cTv(coordObj={lat:48.5125,lon:2.2055}/* ,color='red',sizes={a:.1,b:.1,c:.1} */){//coordinates to vector | Default: Paris
+  const parisSpherical = {
+    lat: THREE.Math.degToRad(90 - coordObj.lat),
+    lon: THREE.Math.degToRad(coordObj.lon)
+  };
+  const radius = 5;// соответствует радиусу карты планеты
+  const vector=new THREE.Vector3().setFromSphericalCoords(
+    radius,
+    parisSpherical.lat,
+    parisSpherical.lon
+  );
+  //console.log(vector);
+  // check we did it correctly
+  //const spherical = new THREE.Spherical().setFromVector3(vector);
+  //console.log(spherical,vector);
+
+  //const g_=new THREE.BoxBufferGeometry(.1,.1,.1)//sizes.a,sizes.b,sizes.c
+  //const m_0=new THREE.Mesh(
+  //        g_,
+  //      new THREE.MeshBasicMaterial({color:'red'})
+  //  )
+  //group.add(m_0)
+  //m_0.position.set(vector.x,vector.y,vector.z)
+
+  return vector
+} 
+//cTv()//China 34.452711, 105.092530
+
+/* function convert(coord={
+  lat:8.442042,
+  lon:77.148370,
+}){
+  const parisSpherical = {
+    lat: THREE.Math.degToRad(90 - coord.lat),
+    lon: THREE.Math.degToRad(coord.lon)
+  };
+  const radius = 5;
+  const vector = new THREE.Vector3().setFromSphericalCoords(
+    radius,
+    parisSpherical.lat,
+    parisSpherical.lon
+  );
+  console.log(vector)
+  return vector
+} */
+
+//JFT
+/*     const lineGeom = new THREE.BufferGeometry().setFromPoints([convert(tmpTo), convert(tmpFrom)]);
+    const line = new THREE.Line(
+    lineGeom,
+    new THREE.LineBasicMaterial({ color: "yellow" })
+    );
+    //line.rotation.y=1.57//INDIA TO UAM
+    group.add(line) */
+// \ JFT
+//function getCoordinatesFromLatLng(coord={lat:40.4251, lon:74.0021},umnojit=1){//Default New-York
+//   const latitude_rad = coord.lat * Math.PI / 180;
+//   const longitude_rad = coord.lon * Math.PI / 180*umnojit;
+//   const radiusEarth=5.01
+//   const xPos= radiusEarth * Math.cos(latitude_rad) * Math.cos(longitude_rad);
+//   const zPos = radiusEarth * Math.cos(latitude_rad) * Math.sin(longitude_rad);
+//   const yPos = radiusEarth * Math.sin(latitude_rad);
+//   const vector= new THREE.Vector3(xPos,yPos,zPos);
+   
+   //JFT
+/*    const coor={x: xPos, y: yPos, z: zPos};
+
+   const g_=new THREE.BoxBufferGeometry(.1,.1,.1)
+   const m_=new THREE.Mesh(g_,
+           new THREE.MeshBasicMaterial({color:new THREE.Color(THREE.Math.randFloat(0, 1),THREE.Math.randFloat(.5,1),THREE.Math.randFloat(.5,1))})
+       )
+   if(group)group.add(m_)
+   m_.position.set(coor.x,coor.y,coor.z) */
+   // \ JFT
+//   return vector
+//}
+//TEST FUNC
+//getCoordinatesFromLatLng();//new-york
+//getCoordinatesFromLatLng({lat:48.858854,lon:2.350368});//paris
+  // \ LESS 2-12
+scene.add(group)
+
+// \ our code
+
+window.addEventListener( 'resize', onWindowResize )
+
+renderer.setAnimationLoop( () => {
+  // our code
+  TWEEN.update()
+  group.rotation.y += 0.001// было if(o)o.rotation.y+=.001
+  // \
+  renderer.render(scene, camera)
+})
+
+function onWindowResize() {
+
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+```
+
+Код тестовой цены с линиями и кубами
+```javascript
+import './style.css'
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import * as dat from 'dat.gui'
+
+import { MeshLine, MeshLineMaterial } from 'three.meshline';
+// Debug
+const gui = new dat.GUI()
+
+// Canvas
+const canvas = document.querySelector('canvas.webgl')
+
+// Scene
+const scene = new THREE.Scene()
+
+// Objects
+const geometry = new THREE.IcosahedronBufferGeometry(1.05, 3);
+
+// Materials
+
+const material = new THREE.MeshBasicMaterial({
+    transparent:true,
+    opacity: .7,
+})
+material.color = new THREE.Color(0x333333)
+
+// Mesh
+const sphere = new THREE.Mesh(geometry,material)
+scene.add(sphere)
+
+const getRandPosition=()=>new THREE.Vector3().random().subScalar(.5).setLength(5);
+//sphere.position.set(position_.x,position_.y,position_.z)
+
+//console.log(position_);
+function createCurve(q){
+    // Эти штуки необходимы для позиционирования над поверхностью планеты
+    const lonHelper = new THREE.Object3D();
+    scene.add(lonHelper);
+    // We rotate the latHelper on its X axis to the latitude
+    const latHelper = new THREE.Object3D();
+    lonHelper.add(latHelper);
+    // The position helper moves the object to the edge of the sphere
+    const positionHelper = new THREE.Object3D();
+    positionHelper.position.z = .5;
+    latHelper.add(positionHelper);
+    // Used to move the center of the cube so it scales from the position Z axis
+    const originHelper = new THREE.Object3D();
+    originHelper.position.z = 0.5;
+    positionHelper.add(originHelper);
+    // QuadraticBezierCurve3 — создаёт из трёх и более точек кривую Безье
+    const curve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(q.q[0],q.q[1],q.q[2]),
+        new THREE.Vector3(q.w[0],q.w[1],q.w[2]),
+        new THREE.Vector3(q.e[0],q.e[1],q.e[2])
+    );
+    // Возвращаю константу, хотя можно было и просто возвратить результат. Здесь просто её можно залогировать, чтобы понять, что происходит
+    const pointsCurve = curve.getPoints(24);
+    // ... например, так:
+    // console.log(pointsCurve)
+    return pointsCurve;
+  }//\Curve
+  const lineMesh=new Array
+function createMeshLine(dataFromCreateCurve,flat=null){
+    // Строим геометрию
+    // Здесь я делаю цвета линий немного разными, чтобы разнообразить их
+    let color=new THREE.Color(.2,THREE.Math.randFloat(0,1),1);
+    let dashRatio=.5,
+        lineWidth=.005
+    if(flat){// это линии, которые белые — летят из нашего центра в другие стороны, в отличии от синих линий, которые летят К ЦЕНТРУ (нашему условному центру)
+        color=new THREE.Color(0xffffff);
+        dashRatio=.9
+        lineWidth=.003
+    }
+    const line = new MeshLine();// экземпляр MeshLine
+    line.setGeometry(dataFromCreateCurve);// Передаём ему геометрию из функции выше
+    const geometryl = line.geometry;
+    // Построить материал с параметрами, чтобы оживить его.
+    const materiall = new MeshLineMaterial({
+        transparent: false, // Необходимо, чтобы была видна анимация, если false, то линия просто будет залита определённым цветом и не будет видна анимация
+        lineWidth,
+        color,
+        dashArray: 2, // всегда должен быть
+        dashOffset: 0, // начать с dash к zero
+        dashRatio, // видимая минута ряда длины. Мин: 0.5, Макс: 0.99
+    });
+    // Построение сетки
+    const lineMeshMat = new THREE.Mesh(geometryl, materiall);// Создаём саму линию (Mesh)
+    lineMeshMat.lookAt(new THREE.Vector3())// Здесь можно и не писать это
+    //parent.add(lineMeshMat); // Добавим её на сцену
+    scene.add(lineMeshMat);
+    lineMesh.push(lineMeshMat); // Добавим эту одну линию, созданную выше, в массив для их анимаций
+}
+function dataForFlatCurve(otkuda,cuda,mps=2){
+    let o=new Object
+    //o.const=[.64,.775,-.275];// Позиция главной (первой появляющейся) точки на карте
+
+    //centered 0
+    o.x=THREE.MathUtils.lerp(otkuda[0],cuda[0],.6)
+    o.y=THREE.MathUtils.lerp(otkuda[1],cuda[1],.5)
+    o.z=THREE.MathUtils.lerp(otkuda[2],cuda[2],.5)
+
+    const nePA=new Array();
+    const nePA2=new Array();
+    const distance=new THREE.Vector3(cuda[0],cuda[1],cuda[2]).distanceTo(
+        new THREE.Vector3(otkuda[0],otkuda[1],otkuda[2])
+    );
+    console.log("mps distance = "+distance);
+/*    
+ 
+    (distance<1)?console.log("distance = "+distance):null;
+    mps=distance/3;
+    if(mps<1.4){
+        mps=1.2;
+        console.log("DETECT < 1.4");
+    }else if(mps>2){
+        mps=1.4
+    }
+    
+ */
+    nePA.push(
+        new THREE.Vector3(cuda[0],cuda[1],cuda[2]),
+        new THREE.Vector3(o.x,o.y,o.z),
+        new THREE.Vector3(otkuda[0],otkuda[1],otkuda[2])
+    );
+    nePA.forEach(e=>nePA2.push(e.normalize()))
+
+    const curve = new THREE.QuadraticBezierCurve3(
+        nePA2[0].multiplyScalar(1.075),
+        nePA2[1].multiplyScalar(2),
+        nePA2[2].multiplyScalar(1.075)
+    );
+    const pointsCurve = curve.getPoints(24);
+    const geometryCurve = new THREE.BufferGeometry().setFromPoints( pointsCurve );
+    const materialCurve = new THREE.LineBasicMaterial( { color : 0xffffff,opacity:.5,transparent:true } );
+    const curveObject = new THREE.Line( geometryCurve, materialCurve );
+    return curveObject.geometry.attributes.position.array
+  }
+/* const mainPos=[.662,.8,-.28];
+const rand_=getRandPosition();
+const rand_2=getRandPosition();
+
+createMeshLine(dataForFlatCurve([
+    rand_.x,
+    rand_.y,
+    rand_.z,
+],[
+    rand_2.x,
+    rand_2.y,
+    rand_2.z,
+]))
+const rand_3=getRandPosition();
+const rand_4=getRandPosition();
+
+createMeshLine(dataForFlatCurve([
+    rand_3.x,
+    rand_3.y,
+    rand_3.z,
+],[
+    rand_4.x,
+    rand_4.y,
+    rand_4.z,
+])) */
+
+
+var paris = {
+    lat: 40.4251,
+    lon: 74.0021
+  };
+/*   console.log(paris);
+  
+  var parisSpherical = {
+    lat: THREE.Math.degToRad(90 - paris.lat),
+    lon: THREE.Math.degToRad(paris.lon)
+  };
+
+
+var parisVector = new THREE.Vector3().setFromSphericalCoords(
+  radius,
+  parisSpherical.lat,
+  parisSpherical.lon
+);
+// check we did it correctly
+var spherical = new THREE.Spherical().setFromVector3(parisVector);
+ */
+
+const radius = 1;
+
+
+function getCoordinatesFromLatLng(latitude, longitude, radiusEarth,color='red')
+{
+   let latitude_rad = latitude * Math.PI / 180;
+   let longitude_rad = longitude * Math.PI / 180;
+
+   let xPos= radiusEarth * Math.cos(latitude_rad) * Math.cos(longitude_rad);
+   let zPos = radiusEarth * Math.cos(latitude_rad) * Math.sin(longitude_rad);
+   let yPos = radiusEarth * Math.sin(latitude_rad);
+   
+   const coor= {x: xPos, y: yPos, z: zPos};
+
+   const g_=new THREE.BoxBufferGeometry(.1,.1,.1)
+   const m_=new THREE.Mesh(g_,
+           new THREE.MeshBasicMaterial({color})
+       )
+   scene.add(m_)
+   m_.position.set(coor.x,coor.y,coor.z)
+
+
+}
+
+//console.log(getCoordinatesFromLatLng(paris.lat,paris.lon,radius));
+getCoordinatesFromLatLng(33.5204,151.1226,radius);//Sydnay
+getCoordinatesFromLatLng(48.864716,2.349014,radius,'green');//paris
+
+createMeshLine(dataForFlatCurve([0,2,0,],[1,-2,0,]))
+//createMeshLine(dataForFlatCurve([-1,.1,0,],[1,-.5,0,]))
+//createMeshLine(dataForFlatCurve([-1,1,0,],[1,-0,0,]))
+/* for(let i=0;i<60;i++){
+
+    const rand_3=getRandPosition();
+    const rand_4=getRandPosition();
+
+    createMeshLine(dataForFlatCurve([
+        rand_3.x,
+        rand_3.y,
+        rand_3.z,
+    ],[
+        rand_4.x,
+        rand_4.y,
+        rand_4.z,
+    ]))
+} */
+
+/* const nre=sphere.clone()
+
+const ve=new THREE.Vector3().random()
+nre.position.set(position_.x,position_.y,position_.z)
+scene.add(nre) */
+
+// Lights
+
+const pointLight = new THREE.PointLight(0xffffff, 0.1)
+pointLight.position.x = 2
+pointLight.position.y = 3
+pointLight.position.z = 4
+scene.add(pointLight)
+
+/**
+ * Sizes
+ */
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+
+///
+
+///
+
+
+window.addEventListener('resize', () =>
+{
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.x = 0
+camera.position.y = 0
+camera.position.z = 2
+scene.add(camera)
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+// controls.enableDamping = true
+
+/**
+ * Renderer
+ */
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvas
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+/**
+ * Animate
+ */
+
+const clock = new THREE.Clock()
+
+const tick = () =>
+{
+
+    const elapsedTime = clock.getElapsedTime()
+
+    // Update objects
+    //sphere.rotation.y = .5 * elapsedTime
+
+    // Update Orbital Controls
+    // controls.update()
+
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
+
+tick()
+```
+
+Расшифровка временных меток видео:
+
+```
+00:00-05:55 Guten Tag
+05:56 Теоретическая часть: функция конвертации широты и долготы в Vector3 (ThreeJS)
+16:44 Приступаю к переносу кода из готового к коду урока, поясняя его
+17:49 Особенность кода. Берём картинку карты с сервера, а не JS переменной
+18:56 Как формируется новая карта планеты
+23:25 Поясняю новый код
+31:29 Создаю доп-ные кубы, чтобы найти точки (JFT)
+35:34 Поясняю за радиус сфера (или икосаэдра)
+37:55 multiplyScalar в ThreeJS
+39:17 ThreeJS методы Spherical(), setFromVector3()
+40:18 Как вычисляется Vector3 из широты и долготы?
+42:52 Тестовый куб (надо было добавить ко группе group.add(m_0))
+44:41 Режим отладки, пытаюсь найти куб ^
+55:17 Линия из координат сферы (глобуса) создаётся этим кодом в ThreeJS
+59:03 Использование функции конвертации широты/долготы в Vector3 в ThreeJS
+01:00:15 JFT: политическая карта мира на ThreeJS
+01:01:56 Подвожу итоги
+01:02:42 Важное замечание по загрузке map.jpg
+01:05:12 Что будет дальше?
+01:10:54 Auf Wiedersehen
+```

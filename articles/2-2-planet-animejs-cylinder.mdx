@@ -1,0 +1,248 @@
+---
+title: "Видео+код: #2-2. Создаём цилиндр+круг в ThreeJS и анимируем с помощью AnimeJS"
+short_to_menu: "#2-2 Планета (2 урок)|Цилиндр, круг"
+date: 2022-01-30 17:55:01
+description: Из данного урока Вы сможете узнать, как создать цилиндр, круг и анимировать их, используя библиотеку ThreeJS + AnimeJS
+published: true
+category: article
+artPre: "/_img/2022/artPre/3-planet"
+---
+
+# Видео: 4. Продолжаем создавать 3D планету в ThreeJS
+урок 4 по Three JS / урок 2 по планете
+
+`youtube:https://www.youtube.com/watch?v=pW_SIAROJig`
+
+## Файлы из урока 2 по 3D планете
+
+[02-2-planet-animejs-cilynder.zip](/fls/2022/02-2-planet-animejs-cilynder.zip "Скачать файл")
+
+Установите AnimeJS:
+`npm i animejs`
+
+Добавьте AnimeJS в начале файла:
+`const anime=require('animejs')`
+
+### Код из видео + перевод и комментарии к коду
+
+```javascript
+//A basic ThreeJS cube scene.
+//@author Matt DesLauriers (@mattdesl)
+
+const canvasSketch = require('canvas-sketch');
+global.THREE = require('three');
+
+/* УРОК 2-2 / Добавим билиотеку анимации*/
+const anime=require('animejs')
+
+// Подключаем управление объектами на сцене
+require('three/examples/js/controls/OrbitControls');
+
+const settings = {
+  // Анимация
+  animate: true,
+  // Установим контекст WebGL
+  context: 'webgl',
+  // Разная лабуда
+  attributes: { antialias: true }
+};
+
+const sketch = ({ context }) => {
+  // Создаём рендер
+  const renderer = new THREE.WebGLRenderer({
+    context
+  });
+
+  // WebGL фоновый цвет. Установите НЕ 1, а 0, если требуется прозрачность
+  renderer.setClearColor('#333', 1);
+
+  // Камера
+  const camera = new THREE.PerspectiveCamera(12,window.innerWidth / window.innerHeight,.01,100);
+  // Позиция камеры
+  camera.position.set(10.5,4,-3.5);
+  //Как ей «смотреть» — смещаем «куда» она смотрит
+  camera.setViewOffset(10, 10, -2, .5, 9, 9)
+  //camera.lookAt(new THREE.Vector3()); // — это нам не нужно, так как если поставить это, камера будет смотреть в 0-вую точку
+
+  // Запустим управление объектами с пом. мыши
+  const controls = new THREE.OrbitControls(camera, context.canvas);
+
+  // Создание самой сцены, куда будем помещать все объекты
+  const scene = new THREE.Scene();
+
+  // Создание группы для СВЕТОВ!
+  const lightHolder = new THREE.Group();
+
+  // Создание простого Света!
+  const aLight=new THREE.DirectionalLight(0xffffff,2);
+
+  // Установка позиции для этого света
+  aLight.position.set(-1.5,1.7,.7);
+
+  // Прикрепляем к удержателю позиции света, чтобы он дальше не крутился вместе с объектами на сцене
+  lightHolder.add(aLight);
+
+  // Второй дополнительный свет
+  const aLight2=new THREE.DirectionalLight(0xffffff,2);
+  aLight2.position.set(-1.5,0.3,.7);
+  lightHolder.add(aLight2);
+
+  // Создание геометрии сферы (которая икосахедрон) — для того, чтобы прикрепить к нему все остальные объекты — сам он будет невидим на сцене
+  const geometry = new THREE.IcosahedronGeometry(1.0,2);
+
+  // Создание материала для икосахедрона (сферы)
+  const materialIcosahedron = new THREE.MeshBasicMaterial({
+    opacity: 0,
+    transparent: true
+  });
+
+  // Создание некоторого абстрактного объекта (переводится — сетка)
+  const mesh = new THREE.Mesh(geometry,materialIcosahedron);
+  // Установим родителя для всех элементов, к которым будет далее применена некоторая анимация...
+  const parent=mesh;
+
+  // Создание сферы, которую мы будем видеть — для скрытия заднего вида самой карты
+  const geomHide = new THREE.SphereBufferGeometry(1.0499, 64, 36);
+  const matHide=new THREE.MeshStandardMaterial({color:new THREE.Color(0x091e5a)});
+  const meshHide= new THREE.Mesh(geomHide, matHide);
+
+  //Добавляем объекты на сцену
+  scene.add(meshHide);
+  scene.add(lightHolder);
+
+  /* !!!WARN!!! Planet 2-2 */
+    scene.add(mesh) // Добавил основной прозрачный (скрытый от глаз объект на сцену), он послужит «родителем» для остальных...
+    // Функция добавления данных на карту планеты
+    function addMapInf(posCil1,posCir2,main=false){
+      // Принимает парамерты:
+        //posCil1 => array(1,2,3)
+        //posCil2 => array(1,2,3)
+        //main => boolean
+      let mainSize=// если main = true, то значит это ПЕРВЫЙ «флагшток» (освновная позиция на карте)
+          mSC=null,// размер круга под цилиндром
+          color=0x008DFB;//цвет по умолчанию — это цвет НЕглавных «флагштоков»
+      if(main){// если это первый «флагшток»
+          mainSize=[.004,.004,.3,3];
+          mSC=[.017,24];
+          color=0x86c3f9
+      }else{ // если остальные флагштоки, то их размер чуть меньше основного
+          mainSize=[.002,.002,.16,4]
+          mSC=[.01,12]
+      };
+      // Создание цилиндра
+      const cyl=new THREE.CylinderBufferGeometry(mainSize[0],mainSize[1],mainSize[2],mainSize[3]);
+      const cylinder=new THREE.Mesh(
+        cyl,
+        new THREE.MeshBasicMaterial({color})
+      );
+      
+      // Нет необходимости направлять цилиндр к центру
+      //cylinder.lookAt(new THREE.Vector3());
+
+      // Установим позицию цилиндра, которая приходит из заданных нами координат
+      cylinder.position.set(posCil1[0],posCil1[1],posCil1[2]);
+
+      //scene.add(cylinder);// Добавим на сцену — это можно НЕ делать, так как мы и так добавим это на сцену кодом ниже
+      parent.add(cylinder);// Добавим к родительскому элементу для дальнейшей анимации (в других уроках)
+
+      // Видимо, далее по коду моей планеты, есть место, где мне необходим только лишь цилиндр (без круга внизу)
+      if(posCir2==''){return [cylinder]}
+
+      // Создаём окружность под цилиндром
+      const circLocation = new THREE.CircleBufferGeometry(mSC[0],mSC[1]);
+
+      // «Засунем» цилиндр в mesh и применим к нему материал...
+      const circleLocation = new THREE.Mesh(
+          circLocation,
+          new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide})
+      );
+
+      // Устанавливаем ему позицию — с помощью заранее определённых данных
+      circleLocation.position.set(posCir2[0],posCir2[1],posCir2[2]);
+
+      //Указываем ему «смотреть» в начало координат (нулевую точку), чтобы он как бы был над поверхностью планеты
+      circleLocation.lookAt(new THREE.Vector3());
+
+      //scene.add(circleLocation);
+
+      // Добавляем окружность под цилиндром
+      parent.add(circleLocation);
+
+      // Функция возвращает два объекта в виде массива
+      // Объекты представляют из себя ранее созданные 3D-объекты — JS Object
+      return [cylinder,circleLocation]
+    }
+
+    // Вызываю функцию создания элементов карты («флагшток №1»)
+    //                данные определил заранее, руками, попробуйте их менять — увидите, как это трудно
+    const c1=addMapInf([.66,.95,-.28],[.662,.8,-.28],true)
+
+    // Анимирую появление «флагштока» — высокого цилиндра
+    anime({
+      targets:c1[0].scale,// указываем цель анимации — «scale» — увеличение чего-то
+      x:[0,1],// увеличивает с 0 до 1 по оси X
+      y:[0,1],// увеличивает с 0 до 1 по оси Y
+      z:[0,1],// увеличивает с 0 до 1 по оси Z
+      duration:2000,// время выполнения самой анимации
+      delay:1100,// задержка перед выполнением анимации
+      easing:'easeOutBounce' // тип перехода анимации — лучше всего выбирать «linear»
+    });
+
+    // Анимирую появление круга под цилиндром
+    anime({targets:c1[1].scale,x:[0,1],y:[0,1],z:[0,1],duration:2000,easing:'linear'});
+
+  /* \ !!!WARN!!! Planet 2-2 */
+
+  // draw each frame
+  return {
+    // Handle resize events here
+    resize ({ pixelRatio, viewportWidth, viewportHeight }) {
+      renderer.setPixelRatio(pixelRatio);
+      renderer.setSize(viewportWidth, viewportHeight);
+      camera.aspect = viewportWidth / viewportHeight;
+      camera.updateProjectionMatrix();
+    },
+    // And render events here
+    render ({ time, deltaTime }) {
+      //mesh.rotation.y = time * (10 * Math.PI / 180);
+      // Включаем копирование кватерниона камеры для группы Светов! чтобы Света не вращались вместе с другими объектами, когда мы их вращаем мышью / пальцами
+      lightHolder.quaternion.copy(camera.quaternion);
+      //controls.update();
+      renderer.render(scene, camera);
+    },
+    // Dispose of WebGL context (optional)
+    unload () {
+      renderer.dispose();
+    }
+  };
+};
+
+canvasSketch(sketch, settings);
+```
+
+Расшифровка временных меток видео:
+
+```
+00:00 hello, guys!
+01:00 Добавил AnimeJS в ThreeJS и заанимировал объекты
+01:22 Что будем делать в этом уроке?
+01:41 Поясняю код (фукнция добавления объектов на планету)
+03:03 Позиции элементов
+03:38 Разница между основным элементом и другими...
+05:31 CylinderBufferGeometry
+06:08 Чем отличается CylinderGeometry от CylinderBufferGeometry?
+07:26 Чем отличаются вычисления на видеокарте и на процессоре?
+09:18 Итог по функции
+10:17 Особенности создания 3D-объектов в ThreeJS — заботимся о производительности
+11:24 CylinderGeometry — понятие параметров
+14:33 CircleBufferGeometry
+16:11 Мы уже изучили: Icosahedron, Cylinder, Circle (ну, и света)
+17:13 cylinder.lookAt ... (показываю «на пальцах»)
+23:07 Зачем нужен «родитель» (parent)?
+24:41 Анимция в ThreeJS с помощью AnimeJS
+28:15 easing анимации AnimeJS — всегда помните о производительности
+32:16 Итоги
+33:03 Установка animejs из npm
+33:15 Подключение animejs вверху файла
+32:25 Goodbye
+```

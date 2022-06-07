@@ -1,0 +1,155 @@
+---
+title: "Видео+код: #2-1. Создаём трёхмерную планету в ThreeJS"
+short_to_menu: "#2-1 Планета (1 урок)|Свет, сфера"
+date: 2022-01-29 14:18:18
+description: Из данного урока Вы сможете узнать, как начать создавать планету, используя библиотеку ThreeJS
+published: true
+category: article
+artPre: "/_img/2022/artPre/2-planet"
+---
+
+# Видео: 3. Создаём 3D планету в ThreeJS
+
+`youtube:https://www.youtube.com/watch?v=MKAigaqJiOI`
+
+## Файлы из урока (начало 3D планеты)
+
+[02-1-planet.zip](/fls/2022/02-1-planet.zip "Скачать файл")
+
+Для запуска будет достаточно установить NodeJS + выполнить команду:
+
+`npm i`
+
+### Код из видео + перевод и комментарии к коду
+
+```javascript
+//A basic ThreeJS cube scene.
+//@author Matt DesLauriers (@mattdesl)
+
+const canvasSketch = require('canvas-sketch');
+global.THREE = require('three');
+
+// Подключаем управление объектами на сцене
+require('three/examples/js/controls/OrbitControls');
+
+const settings = {
+  // Анимация
+  animate: true,
+  // Установим контекст WebGL
+  context: 'webgl',
+  // Разная лабуда
+  attributes: { antialias: true }
+};
+
+const sketch = ({ context }) => {
+  // Создаём рендер
+  const renderer = new THREE.WebGLRenderer({
+    context
+  });
+
+  // WebGL фоновый цвет. Установите НЕ 1, а 0, если требуется прозрачность
+  renderer.setClearColor('#333', 1);
+
+  // Камера
+  const camera = new THREE.PerspectiveCamera(12,window.innerWidth / window.innerHeight,.01,100);
+  // Позиция камеры
+  camera.position.set(10.5,4,-3.5);
+  //Как ей «смотреть» — смещаем «куда» она смотрит
+  camera.setViewOffset(10, 10, -2, .5, 9, 9)
+  //camera.lookAt(new THREE.Vector3()); // — это нам не нужно, так как если поставить это, камера будет смотреть в 0-вую точку
+
+  // Запустим управление объектами с пом. мыши
+  const controls = new THREE.OrbitControls(camera, context.canvas);
+
+  // Создание самой сцены, куда будем помещать все объекты
+  const scene = new THREE.Scene();
+
+  // Создание группы для СВЕТОВ!
+  const lightHolder = new THREE.Group();
+
+  // Создание простого Света!
+  const aLight=new THREE.DirectionalLight(0xffffff,2);
+
+  // Установка позиции для этого света
+  aLight.position.set(-1.5,1.7,.7);
+
+  // Прикрепляем к удержателю позиции света, чтобы он дальше не крутился вместе с объектами на сцене
+  lightHolder.add(aLight);
+
+  // Второй дополнительный свет
+  const aLight2=new THREE.DirectionalLight(0xffffff,2);
+  aLight2.position.set(-1.5,0.3,.7);
+  lightHolder.add(aLight2);
+
+  // Создание геометрии сферы (которая икосахедрон) — для того, чтобы прикрепить к нему все остальные объекты — сам он будет невидим на сцене
+  const geometry = new THREE.IcosahedronGeometry(1.0,2);
+
+  // Создание материала для икосахедрона (сферы)
+  const materialIcosahedron = new THREE.MeshBasicMaterial({
+    opacity: 0,
+    transparent: true
+  });
+
+  // Создание некоторого абстрактного объекта (переводится — сетка)
+  const mesh = new THREE.Mesh(geometry,materialIcosahedron);
+  // Установим родителя для всех элементов, к которым будет далее применена некоторая анимация...
+  const parent=mesh;
+
+  // Создание сферы, которую мы будем видеть — для скрытия заднего вида самой карты
+  const geomHide = new THREE.SphereBufferGeometry(1.0499, 64, 36);
+  const matHide=new THREE.MeshStandardMaterial({color:new THREE.Color(0x091e5a)});
+  const meshHide= new THREE.Mesh(geomHide, matHide);
+
+  //Добавляем объекты на сцену
+  scene.add(meshHide);
+  scene.add(lightHolder);
+
+  // draw each frame
+  return {
+    // Handle resize events here
+    resize ({ pixelRatio, viewportWidth, viewportHeight }) {
+      renderer.setPixelRatio(pixelRatio);
+      renderer.setSize(viewportWidth, viewportHeight);
+      camera.aspect = viewportWidth / viewportHeight;
+      camera.updateProjectionMatrix();
+    },
+    // And render events here
+    render ({ time, deltaTime }) {
+      //mesh.rotation.y = time * (10 * Math.PI / 180);
+      // Включаем копирование кватерниона камеры для группы Светов! чтобы Света не вращались вместе с другими объектами, когда мы их вращаем мышью / пальцами
+      lightHolder.quaternion.copy(camera.quaternion);
+      //controls.update();
+      renderer.render(scene, camera);
+    },
+    // Dispose of WebGL context (optional)
+    unload () {
+      renderer.dispose();
+    }
+  };
+};
+
+canvasSketch(sketch, settings);
+```
+
+Расшифровка временных меток видео:
+
+```
+00:00 come in;
+00:54 Что, к чему и зачем?
+01:46 Поясняю код
+01:58 Изменение фонового цвета canvas ThreeJS
+02:10 Изменение камеры в ThreeJS
+02:35 Установка определённой позиции камеры camera.setPosition (откуда ей смотреть)
+03:36 Установка позиции таргетирования камеры camera.setViewOffset (куда ей смотреть)
+05:39 OrbitControls — управление объектами на сцене
+06:39 lightHolder — группа в ThreeJS (для удерживания источника света в одной и той же позиции, при вращении объектов на сцене)
+07:37 IcosahedronGeometry в ThreeJS
+09:05 DirectionalLight в ThreeJS
+11:06 Пояснение относительно создания «прозрачного» объекта в качестве «родительского» для других на сцене — для анимации затем всех элементов
+14:12 Видимая сфера (синяя) SphereBufferGeometry
+15:26 Пояснение создание камеры и всех остальных объектов на сцене
+16:14 Пояснение размеров самой «планеты» (чтобы были видны точечки карты планеты)
+18:39 scene.add(ANY) — добавление объектов на сцену
+18:53 Добавление lightHolder — чтобы источники света НЕ вращались вместе с остальными объектами на сцене
+21:08 exit;
+```

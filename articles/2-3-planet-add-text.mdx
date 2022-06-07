@@ -1,0 +1,295 @@
+---
+title: "Видео+код: #2-3. Импорт шрифта и написание текста в ThreeJS +анимируем текст"
+short_to_menu: "#2-3 Планета (3 урок)|Шрифт"
+date: 2022-02-01 01:00:15
+description: Из данного урока Вы сможете узнать, как импортировать шрифт в Three.JS и написать текст, а также анимировать его с AnimeJS
+published: true
+category: article
+artPre: "/_img/2022/artPre/4-font-import"
+---
+
+# Видео: 5. Продолжаем создавать 3D планету в ThreeJS
+урок 5 по Three JS / урок 3 по планете
+
+`youtube:https://www.youtube.com/watch?v=c4iKQytFwkI`
+
+## Файлы из урока 3 по 3D планете
+
+[02-3-planet-add-text.zip](/fls/2022/02-3-planet-add-text.zip "Скачать файл")
+
+Добавьте загрузчик шрифтов и геометрию для создания текста, так как в моей версии их нет в объекте THREE:
+```javascript
+/* УРОК 2-3 / Добавим загрузчик шрифтов */
+require('three/examples/js/loaders/FontLoader');
+require('three/examples/js/geometries/TextGeometry');
+```
+
+### Код из видео
+
+```javascript
+//A basic ThreeJS cube scene.
+//@author Matt DesLauriers (@mattdesl)
+
+const canvasSketch = require('canvas-sketch');
+global.THREE = require('three');
+
+/* УРОК 2-2 / Добавим билиотеку анимации*/
+const anime=require('animejs')
+
+// Подключаем управление объектами на сцене
+require('three/examples/js/controls/OrbitControls');
+
+/* УРОК 2-3 / Добавим загрузчик шрифтов */
+require('three/examples/js/loaders/FontLoader');
+require('three/examples/js/geometries/TextGeometry');
+
+
+const settings = {
+  // Анимация
+  animate: true,
+  // Установим контекст WebGL
+  context: 'webgl',
+  // Разная лабуда
+  attributes: { antialias: true }
+};
+
+const sketch = ({ context }) => {
+  // Создаём рендер
+  const renderer = new THREE.WebGLRenderer({
+    context
+  });
+
+  // WebGL фоновый цвет. Установите НЕ 1, а 0, если требуется прозрачность
+  renderer.setClearColor('#333', 1);
+
+  // Камера
+  const camera = new THREE.PerspectiveCamera(12,window.innerWidth / window.innerHeight,.01,100);
+  // Позиция камеры
+  camera.position.set(10.5,4,-3.5);
+  //Как ей «смотреть» — смещаем «куда» она смотрит
+  camera.setViewOffset(10, 10, -2, .5, 9, 9)
+  //camera.lookAt(new THREE.Vector3()); // — это нам не нужно, так как если поставить это, камера будет смотреть в 0-вую точку
+
+  // Запустим управление объектами с пом. мыши
+  const controls = new THREE.OrbitControls(camera, context.canvas);
+
+  // Создание самой сцены, куда будем помещать все объекты
+  const scene = new THREE.Scene();
+
+  // Создание группы для СВЕТОВ!
+  const lightHolder = new THREE.Group();
+
+  // Создание простого Света!
+  const aLight=new THREE.DirectionalLight(0xffffff,2);
+
+  // Установка позиции для этого света
+  aLight.position.set(-1.5,1.7,.7);
+
+  // Прикрепляем к удержателю позиции света, чтобы он дальше не крутился вместе с объектами на сцене
+  lightHolder.add(aLight);
+
+  // Второй дополнительный свет
+  const aLight2=new THREE.DirectionalLight(0xffffff,2);
+  aLight2.position.set(-1.5,0.3,.7);
+  lightHolder.add(aLight2);
+
+  // Создание геометрии сферы (которая икосахедрон) — для того, чтобы прикрепить к нему все остальные объекты — сам он будет невидим на сцене
+  const geometry = new THREE.IcosahedronGeometry(1.0,2);
+
+  // Создание материала для икосахедрона (сферы)
+  const materialIcosahedron = new THREE.MeshBasicMaterial({
+    opacity: 0,
+    transparent: true
+  });
+
+  // Создание некоторого абстрактного объекта (переводится — сетка)
+  const mesh = new THREE.Mesh(geometry,materialIcosahedron);
+  // Установим родителя для всех элементов, к которым будет далее применена некоторая анимация...
+  const parent=mesh;
+
+  // Создание сферы, которую мы будем видеть — для скрытия заднего вида самой карты
+  const geomHide = new THREE.SphereBufferGeometry(1.0499, 64, 36);
+  const matHide=new THREE.MeshStandardMaterial({color:new THREE.Color(0x091e5a)});
+  const meshHide= new THREE.Mesh(geomHide, matHide);
+
+  //Добавляем объекты на сцену
+  scene.add(meshHide);
+  scene.add(lightHolder);
+
+  /* !!!WARN!!! Planet 2-2 */
+    scene.add(mesh) // Добавил основной прозрачный (скрытый от глаз объект на сцену), он послужит «родителем» для остальных...
+    // Функция добавления данных на карту планеты
+    function addMapInf(posCil1,posCir2,main=false){
+      // Принимает парамерты:
+        //posCil1 => array(1,2,3)
+        //posCil2 => array(1,2,3)
+        //main => boolean
+      let mainSize=// если main = true, то значит это ПЕРВЫЙ «флагшток» (освновная позиция на карте)
+          mSC=null,// размер круга под цилиндром
+          color=0x008DFB;//цвет по умолчанию — это цвет НЕглавных «флагштоков»
+      if(main){// если это первый «флагшток»
+          mainSize=[.004,.004,.3,3];
+          mSC=[.017,24];
+          color=0x86c3f9
+      }else{ // если остальные флагштоки, то их размер чуть меньше основного
+          mainSize=[.002,.002,.16,4]
+          mSC=[.01,12]
+      };
+      // Создание цилиндра
+      const cyl=new THREE.CylinderBufferGeometry(mainSize[0],mainSize[1],mainSize[2],mainSize[3]);
+      const cylinder=new THREE.Mesh(
+        cyl,
+        new THREE.MeshBasicMaterial({color})
+      );
+      
+      // Нет необходимости направлять цилиндр к центру
+      //cylinder.lookAt(new THREE.Vector3());
+
+      // Установим позицию цилиндра, которая приходит из заданных нами координат
+      cylinder.position.set(posCil1[0],posCil1[1],posCil1[2]);
+
+      //scene.add(cylinder);// Добавим на сцену — это можно НЕ делать, так как мы и так добавим это на сцену кодом ниже
+      parent.add(cylinder);// Добавим к родительскому элементу для дальнейшей анимации (в других уроках)
+
+      // Видимо, далее по коду моей планеты, есть место, где мне необходим только лишь цилиндр (без круга внизу)
+      if(posCir2==''){return [cylinder]}
+
+      // Создаём окружность под цилиндром
+      const circLocation = new THREE.CircleBufferGeometry(mSC[0],mSC[1]);
+
+      // «Засунем» цилиндр в mesh и применим к нему материал...
+      const circleLocation = new THREE.Mesh(
+          circLocation,
+          new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide})
+      );
+
+      // Устанавливаем ему позицию — с помощью заранее определённых данных
+      circleLocation.position.set(posCir2[0],posCir2[1],posCir2[2]);
+
+      //Указываем ему «смотреть» в начало координат (нулевую точку), чтобы он как бы был над поверхностью планеты
+      circleLocation.lookAt(new THREE.Vector3());
+
+      //scene.add(circleLocation);
+
+      // Добавляем окружность под цилиндром
+      parent.add(circleLocation);
+
+      // Функция возвращает два объекта в виде массива
+      // Объекты представляют из себя ранее созданные 3D-объекты — JS Object
+      return [cylinder,circleLocation]
+    }
+
+    // Вызываю функцию создания элемнтов карты («флагшток №1»)
+    //                данные определил заранее, руками, попробуйте их менять — увидите, как это трудно
+/*     const c1=addMapInf([.66,.95,-.28],[.662,.8,-.28],true)
+
+    // Анимирую появление «флагштока» — высокого цилиндра
+    anime({
+      targets:c1[0].scale,// указываем цель анимации — «scale» — увеличение чего-то
+      x:[0,1],// увеличивает с 0 до 1 по оси X
+      y:[0,1],// увеличивает с 0 до 1 по оси Y
+      z:[0,1],// увеличивает с 0 до 1 по оси Z
+      duration:2000,// время выполнения самой анимации
+      delay:1100,// задержка перед выполнением анимации
+      easing:'easeOutBounce' // тип перехода анимации — лучше всего выбирать «linear»
+    }); */
+
+    // Анимирую появление круга под цилиндром
+//    anime({targets:c1[1].scale,x:[0,1],y:[0,1],z:[0,1],duration:2000,easing:'linear'});
+
+  /* \ !!!WARN!!! Planet 2-2 */
+
+    /* !!!WARN!!! Planet 2-3 */
+    /* Text */
+    const fontLoader=new THREE.FontLoader();
+    fontLoader.load('fonts/font-roboto.json', font =>{
+        function createText(text,pos,rot,size,font,color=0xffffff){
+          text=new String(text);
+          const textGeo = new THREE.TextGeometry(text,{
+            font,
+            size,
+            height: .04,
+            curveSegments: 12,
+            /* bevelEnabled: true,
+            bevelThickness: 10,
+            bevelSize: 8,
+            bevelOffset: 0,
+            bevelSegments: 5 */
+          } );
+          const textMaterial=new THREE.MeshBasicMaterial({
+              color,
+              side:THREE.FrontSide
+          });
+          text=new THREE.Mesh(textGeo,textMaterial);
+          text.position.set(pos[0],pos[1],pos[2]);
+          text.rotation.set(rot[0],rot[1],rot[2]);
+          /* text.updateMatrix(); */
+          scene.add(text);
+          parent.add(text);
+          return text;
+      }
+        const txt1=createText('One',[-.64,1,-.3],[0,1.95,0],.05,font)
+        const txt2=createText('Test',[-.64,.89,-.3],[0,1.95,0],.05,font,0xff0000);
+
+        const mainPos=[.662,.8,-.28];
+        anime.timeline().add({
+            targets:txt1.scale,x:[0,1],y:[0,1],z:[0,1],duration:600,easing:'linear'
+        }).add({
+            targets:txt2.scale,x:[0,1],y:[0,1],z:[0,1],duration:600,delay:1000,easing:'linear',complete:()=>{
+                //(main)
+                let c1=addMapInf([.66,.95,-.28],mainPos,true);
+                anime({targets:c1[0].scale,x:[0,1],y:[0,1],z:[0,1],duration:1000,delay:100,easing:'linear'});
+                anime({targets:c1[1].scale,x:[0,1],y:[0,1],z:[0,1],duration:1000,easing:'linear'});
+            }
+          })
+    });
+    //\TEXT+
+    /* \ !!!WARN!!! Planet 2-3 */
+
+      // draw each frame
+  return {
+    // Handle resize events here
+    resize ({ pixelRatio, viewportWidth, viewportHeight }) {
+      renderer.setPixelRatio(pixelRatio);
+      renderer.setSize(viewportWidth, viewportHeight);
+      camera.aspect = viewportWidth / viewportHeight;
+      camera.updateProjectionMatrix();
+    },
+    // And render events here
+    render ({ time, deltaTime }) {
+      //mesh.rotation.y = time * (10 * Math.PI / 180);
+      // Включаем копирование кватерниона камеры для группы Светов! чтобы Света не вращались вместе с другими объектами, когда мы их вращаем мышью / пальцами
+      lightHolder.quaternion.copy(camera.quaternion);
+      //controls.update();
+      renderer.render(scene, camera);
+    },
+    // Dispose of WebGL context (optional)
+    unload () {
+      renderer.dispose();
+    }
+  };
+};
+
+canvasSketch(sketch, settings);
+```
+
+Расшифровка временных меток видео:
+
+```
+00:00 hi there
+01:19 Некоторые особенности версионности Three.JS
+03:01 Особенности кода этого урока
+03:35 Поясняю код урока — загрузка JSON-шрифта в ThreeJS
+05:22 Особенности загрузки шрифта в ThreeJS
+06:12 Моя функция создания шрифта и его позиционирование
+10:00 CurveSegments при создании шрифта
+10:27 Можно загружать и TTF шрифты ?! Оо
+11:04 ExtrudeGeometry
+12:32 Офиц. справка TextGeometry
+15:45 Пока делал планету, спалил себе видео карту
+18:54 Подвожу итоги фукции создания шрифта
+20:26 Анимирую появление текста
+20:50 callback в animejs
+22:32 Пробую bevelEnabled
+26:15 Goodbye
+```
