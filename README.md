@@ -9,3 +9,4 @@ Source code of: three.inverser.pro
 - mdx;
 - embed-video (embed video from YouTube in MDX);
 - prismjs (with Native JS copy button);
+- try: custom serviceWordker file;
