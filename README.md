@@ -8,3 +8,4 @@ Source code of: three.inverser.pro
 - offline;
 - mdx;
 - embed-video (embed video from YouTube in MDX);
+- prismjs (with Native JS copy button);
