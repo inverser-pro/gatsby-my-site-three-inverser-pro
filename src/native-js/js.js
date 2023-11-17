@@ -9,7 +9,7 @@ const js = ()=>{
         if(allYT){
             // https://i3.ytimg.com/vi/erLk59H86ww/maxresdefault.jpg
             if(allYT.dataset&&allYT.dataset.id){
-                div.innerHTML=`<img loading="lazy" src="https://i3.ytimg.com/vi/${allYT.dataset.id}/maxresdefault.jpg" alt>`;
+                div.innerHTML=`<img width="1280" height="720" loading="lazy" src="https://i3.ytimg.com/vi/${allYT.dataset.id}/maxresdefault.jpg" alt>`;
                 allYT.after(div);
                 allYT.remove();
                 div.addEventListener('click',()=>{

@@ -43,7 +43,7 @@ const Home = ({data}) =>{
                                     <source srcSet={`${post.frontmatter.artPre}.avif`} type="image/avif" />
                                     <source srcSet={`${post.frontmatter.artPre}.webp`} type="image/webp" />
                                     <img
-                                    decoding="async" loading="lazy"
+                                    decoding="async" loading="lazy" width="480" height="270"
                                     src={`${post.frontmatter.artPre}.jpg`} alt={post.frontmatter.title} />
                                 </picture>
                                 <div className="w1">
