@@ -15,7 +15,6 @@ const blogPosts = (data) =>{
     const {frontmatter,body}=data.data.mdx;
     const {previous, next}=data.pageContext;
     const {nodes}=data.data.allMdx;
-
     if(typeof window !== `undefined`){
         let mse=false;
         const d = document
@@ -65,7 +64,6 @@ const blogPosts = (data) =>{
             const codes=document.querySelectorAll('pre');
             if(codes.length>0){
                 codes.forEach(e=>{
-                    console.log(e.classList.contains('language-javascript')||e.classList.contains('language-html'));
                     if(e.classList.contains('language-javascript')||e.classList.contains('language-html')){
                         const btn=document.createElement('button');
                         btn.classList.add('btn','copyMe')

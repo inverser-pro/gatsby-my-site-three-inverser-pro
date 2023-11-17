@@ -12,7 +12,7 @@ import { Link } from "gatsby";
 
 # Видео: Что необходимо сделать, чтобы стартануть в ThreeJS?
 
-`youtube:https://www.youtube.com/watch?v=tJhvf-maVsM`
+<span className="loadYoutube" data-id="tJhvf-maVsM"></span>
 
 ## Друзья, начиная с урока <Link to="/2-6-meshline">#2-6 Планета (6 урок)</Link>, я использую эту стартовую сцену: <a href="https://github.com/inverser-pro/threejs-webgl-planet-for-production" rel="noreferrer noopener" target="_blank">GitHUB</a>
 
@@ -72,7 +72,7 @@ import { Link } from "gatsby";
 и следовать инструкциям...
 
 `npm install canvas-sketch-cli -g`
-*если Вы на Linux'е, то данную операцию необходимо выполнить из-под суперпользователя.
+*если Вы на Linux'е, то данную операцию необходимо выполнить из-под `sudo`.
 
 Далее. Создайте папку и перейдите в неё:
 
@@ -80,7 +80,9 @@ import { Link } from "gatsby";
 
 Далее, чтобы начать писать, используя авто-генерацию, просто введите:
 
-`canvas-sketch sketch.js --new --open`
+`npx canvas-sketch-cli sketch.js --new --open`
+
+<blockquote>Внимание! Команда ThreeJS удалила папку с JS и теперь доступны только JSM (JS модули), поэтому код сразу может выдавать ошибку, что не найден OrbitControls. Его необходимо экспортировать из папки `jsm` : `require('three/examples/jsm/controls/OrbitControls');`<br/>И/или <a href="https://www.youtube.com/watch?v=ht-HysQPZtw&list=PL0XYm8bdyeFDGJmFeHDiEXsmLfq3vWBaj&index=24&pp=gAQBiAQB" rel="nofollow noopener">поменяйте версию ThreeJS на 126</a></blockquote>
 
 [Стартовая сцена](https://github.com/mattdesl/canvas-sketch/blob/master/examples/animated-three-basic-cube.js "Стартовая сцена") выглядит так для canvas-sketch:
 
@@ -94,6 +96,7 @@ const canvasSketch = require('canvas-sketch');
 global.THREE = require('three');
 
 // Include any additional ThreeJS examples below
+// ВНИМАНИЕ! ПУТЬ ТЕПЕРЬ ИЗМЕНЁН И ДАННАЯ ФУНКЦИЯ БЕРЁТСЯ ИЗ ПАПКИ JSM! ПРОВЕРЬТЕ ОШИБКИ В КОНСОЛИ
 require('three/examples/js/controls/OrbitControls');
 
 const settings = {
@@ -229,3 +232,28 @@ canvasSketch(sketch, settings);
 29:31 Функция render в ThreeJS
 33:17 А напоследок я скажу...
 ```
+<hr />
+
+## Подготовка 3D модели в Blender для сцены в ThreeJS (glb compressed)
+
+`youtube:https://www.youtube.com/watch?v=HRG2V-fUfuY`
+
+## ThreeJS смена версии со 126 на 151 для стекла transmission. смена версии пакета yarn add,yarn remove
+
+`youtube:https://www.youtube.com/watch?v=ht-HysQPZtw`
+
+## ThreeJS Shadow — тени на сцене. Как включить?
+
+`youtube:https://www.youtube.com/watch?v=-q9HNye840E`
+
+## Как починить ThreeJS DracoLoader и то, что нельзя починить (debug three.js)
+
+`youtube:https://www.youtube.com/watch?v=-6BWnJ2Jk0A`
+
+## Blender decimate — автоматическая ретопология (2) (модификатор)
+
+`youtube:https://www.youtube.com/watch?v=_jgb9Enu1KY`
+
+## За что можно ненавидеть ThreeJS?
+
+`youtube:https://www.youtube.com/watch?v=OGeBT2Cncxo`

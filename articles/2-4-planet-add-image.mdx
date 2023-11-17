@@ -11,13 +11,15 @@ artPre: "/_img/2022/artPre/5-import-png"
 # Видео: 6. Продолжаем создавать 3D планету в ThreeJS
 урок 6 по Three JS / урок 4 по планете
 
-`youtube:https://www.youtube.com/watch?v=d-QhsuzT9BQ`
+<span className="loadYoutube" data-id="d-QhsuzT9BQ"></span>
 
 ## Файлы из урока 4 по 3D планете
 
 [02-4-planet-add-image.zip](/fls/2022/02-4-planet-add-image.zip "Скачать файл")
 
 ### Код из видео
+
+<blockquote>Внимание! Команда ThreeJS удалила папку с JS и теперь доступны только JSM (JS модули), поэтому код сразу может выдавать ошибку, что не найден OrbitControls. Его необходимо экспортировать из папки `jsm` : `require('three/examples/jsm/controls/OrbitControls');`<br/>И/или <a href="https://www.youtube.com/watch?v=ht-HysQPZtw&list=PL0XYm8bdyeFDGJmFeHDiEXsmLfq3vWBaj&index=24&pp=gAQBiAQB" rel="nofollow noopener">поменяйте версию ThreeJS на 126</a></blockquote>
 
 ```javascript
 //A basic ThreeJS cube scene.
@@ -30,7 +32,7 @@ global.THREE = require('three');
 const anime=require('animejs')
 
 // Подключаем управление объектами на сцене
-require('three/examples/js/controls/OrbitControls');
+require('three/examples/jsm/controls/OrbitControls');
 
 /* УРОК 2-3 / Добавим загрузчик шрифтов */
 require('three/examples/js/loaders/FontLoader');

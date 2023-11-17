@@ -11,7 +11,7 @@ artPre: "/_img/2022/artPre/6-map"
 # Видео: 7. Формируем 3D объект из PNG карты планеты
 урок 7 по Three JS / урок 5 по планете
 
-`youtube:https://www.youtube.com/watch?v=1pWYlnUdTGg`
+<span className="loadYoutube" data-id="1pWYlnUdTGg"></span>
 
 ## Файлы из урока 5 по 3D планете
 
@@ -39,6 +39,8 @@ PlaneBufferGeometry — это 4 точки, если бы я создавал �
 ![Plane в ThreeJS](/_img/2022/2-5-plane.jpg)
 
 ### Код из видео
+
+<blockquote>Внимание! Команда ThreeJS удалила папку с JS и теперь доступны только JSM (JS модули), поэтому код сразу может выдавать ошибку, что не найден OrbitControls. Его необходимо экспортировать из папки `jsm` : `require('three/examples/jsm/controls/OrbitControls');`<br/>И/или <a href="https://www.youtube.com/watch?v=ht-HysQPZtw&list=PL0XYm8bdyeFDGJmFeHDiEXsmLfq3vWBaj&index=24&pp=gAQBiAQB" rel="nofollow noopener">поменяйте версию ThreeJS на 126</a></blockquote>
 
 ```javascript
 const canvasSketch = require('canvas-sketch');

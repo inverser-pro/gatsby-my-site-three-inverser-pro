@@ -1,0 +1,132 @@
+---
+title: "Видео+код: #3/1 Mandalorian в ThreeJS импорт GLB 3D модели из Blender на сцену Three.JS"
+short_to_menu: "#3-1 Mando|Экспорт 3D модели"
+date: 2022-07-13 11:22:10
+description: "Видео+код: #3/1 Mandalorian в ThreeJS"
+published: true
+category: article
+artPre: "/_img/2023/3-1"
+---
+
+# Видео: #3/1 Mandalorian в ThreeJS импорт GLB 3D модели из Blender на сцену Three.JS
+
+<span className="loadYoutube" data-id="Xn-FKVAvYmA"></span>
+
+## Файлы из урока 3/1 по Mando
+
+[3-1-Mando_start.7z](/fls/2023/3-1-Mando_start.7z "Скачать файл")
+
+<a href="https://github.com/inverser-pro/threejs-mandalorian-helmet" rel="noreferrer noopener" target="_blank">GitHUB</a>
+
+<blockquote>Внимание! Могут возникать ошибки в самой 3D модели. Подберите любую другую для теста</blockquote>
+
+### JS Код из видео (!на **threejs-webpack-starter**!)
+
+```javascript
+import './style.css'
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+//import animejs from 'animejs/lib/anime.es.js'
+//import * as dat from 'dat.gui'
+
+// Debug
+//const gui = new dat.GUI()
+
+// Canvas
+const canvas = document.querySelector('canvas.webgl')
+
+// Scene
+const scene = new THREE.Scene()
+
+const sceneData=Object.create({
+    model:'/models/Mandalorean.glb',
+})
+
+// CODE
+const loader = new GLTFLoader();
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/js/libs/draco/'); // use a full url path
+loader.setDRACOLoader(dracoLoader);
+loader.load(
+    sceneData.model,// Spaceship
+    gltf=>{
+        const sceneGlb=gltf.scene
+        //console.log(sceneGlb);
+        sceneGlb.scale.set(.05,.05,.05)
+        scene.add(sceneGlb)
+    }
+)
+// \ CODE
+
+const pointLight = new THREE.PointLight(0xffffff, 1)
+pointLight.position.setx = 2
+pointLight.position.y = 3
+pointLight.position.z = 4
+scene.add(pointLight)
+
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+window.addEventListener('resize', () =>{
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+const camera = new THREE.PerspectiveCamera(30, sizes.width / sizes.height, .1, 100)
+camera.position.set(0,1,5);
+scene.add(camera)
+
+// Controls
+const controls = new OrbitControls(camera, canvas)
+// controls.enableDamping = true
+
+const renderer = new THREE.WebGLRenderer({
+    canvas, antialias: true,
+})
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+const tick = () =>
+{
+
+    //const elapsedTime = clock.getElapsedTime()
+
+    // Update Orbital Controls
+    // controls.update()
+
+    // Render
+    renderer.render(scene, camera)
+
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
+
+tick()
+```
+
+Расшифровка временных меток видео:
+
+```
+00:00 Здравствуй, друг
+00:43 Начнём с threejs webpack starter
+03:54 Отключаю открытие браузера при старте разработки
+05:23 Начинаю пояснять код GLB загрузки сжатой 3D модели на сцену Three.JS
+06:47 Хранение переменных путей к файлам и 3D объектов в коде и папках...
+10:09 Какие подводные камни могут быть в 3D модели?
+10:52 Исправил неправильное наложение разных материлов на 3D модель в Blender
+11:43 Как я экспортирую 3D модель для Three JS сцены?
+12:47 Какие подводные камни импорта 3D модели на ThreeJS сцену?
+14:06 Что будет дальше?
+14:39 До следующих встреч
+```

@@ -2,11 +2,14 @@ import React from "react";
 import { graphql, Link } from "gatsby";
 import Container from "../compots/container";
 import Seo from "../compots/Seo";
+import js from "../native-js/js"
 
 const Home = ({data}) =>{
 
     const siteTitle=data.site.siteMetadata.title;
     const siteDescription=data.site.siteMetadata.description;
+
+    const js_ = js;
 
     return (
         <Container>
@@ -26,7 +29,7 @@ const Home = ({data}) =>{
                 <p></p>
                 <a rel="nofollow noreferrer noopener" href="//threejs.org/docs/" target="_blank">Официальная справка по ThreeJS</a>
 
-                <iframe width="560" height="360" title="#0 Welcome in Three js" loading="lazy" src="https://www.youtube.com/embed/UNvoDucprRE" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <span className="loadYoutube" data-id="UNvoDucprRE"></span>
 
                 <h3>Статеечки:</h3>
 
@@ -58,6 +61,7 @@ const Home = ({data}) =>{
                 })}
                 </div>
             </main>
+            <script>{js_}</script>
         </Container>
     )
 }

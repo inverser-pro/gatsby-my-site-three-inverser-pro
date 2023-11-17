@@ -1,5 +1,9 @@
 import './src/css/css.css'
 import './src/css/prism-funky.css'
+// import React from "react"
+// import Container from "./src/compots/container";
+import js from "./src/native-js/js"
+
 /* 
 import React from "react";
 import { MDXProvider } from "@mdx-js/react";
@@ -51,3 +55,12 @@ return <MDXProvider components={components}>{element}</MDXProvider>;
 //import { wrapRootElement as wrap } from "./src/compots/wrap-root-element"
  
 //export const wrapRootElement = wrap
+
+//export const wrapPageElement = ({ element, props }) => {
+  //return <Container {...props}>{element}</Container>
+//}
+
+export const onRouteUpdate = () => {
+  // console.log("onRouteUpdate") // this works
+  js();
+}
