@@ -39,4 +39,4 @@ const js = ()=>{
     }, 1200);
 };
 
-export default js 
+export default js
