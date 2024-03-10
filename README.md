@@ -1,7 +1,7 @@
-# gatsby-my-site-three-inverser-pro
+# gatsbyjs-my-site-three-inverser-pro
 Source code of: three.inverser.pro
 
-## Gatsby exaples:
+## GatsbyJS exaples:
 
 - google-analytics (google-gtag);
 - sitemap;
